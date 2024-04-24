@@ -9,7 +9,7 @@ import os
 class Board:
 
     def __init__(self):
-        self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
+        self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for _ in range(COLS)]
         self.last_move = None
         self._create()
         self._add_pieces('white')
@@ -94,6 +94,88 @@ class Board:
                             return True
         
         return False
+    
+    def check_mate(self, color):
+        # Find the king of the given color
+        king_square = None
+        for row in self.squares:
+            for square in row:
+                piece = square.piece
+                if isinstance(piece, King) and piece.color == color:
+                    king_square = square
+                    break
+            if king_square:
+                break
+
+        # Check if the king is in check
+        king = king_square.piece
+        if self.in_check(king, Move(king_square, None)):
+            # If the king is in check, check if there are any legal moves to escape
+            for row in self.squares:
+                for square in row:
+                    piece = square.piece
+                    if piece is not None and piece.color == color:
+                        self.calc_moves(piece, square.row, square.col)
+                        for move in piece.moves:
+                            # Try each legal move and see if it gets the king out of check
+                            temp_board = copy.deepcopy(self)
+                            temp_piece = temp_board.squares[square.row][square.col].piece
+                            temp_board.move(temp_piece, move, testing=True)
+                            if not temp_board.in_check(king, move):
+                                return False  # There's at least one legal move available to escape check
+
+        # If no legal moves are available, it's checkmate
+        return True
+
+    def stale_mate(self, color):
+        # Iterate through all pieces of the given color
+        for row in self.squares:
+            for square in row:
+                piece = square.piece
+                if piece is not None and piece.color == color:
+                    self.calc_moves(piece, square.row, square.col)
+                    if piece.moves:
+                        return False  # There's at least one legal move available
+
+        # If no pieces have legal moves and the king of the given color is not in check, it's a stalemate
+        king_square = None
+        for row in self.squares:
+            for square in row:
+                piece = square.piece
+                if isinstance(piece, King) and piece.color == color:
+                    king_square = square
+                    break
+            if king_square:
+                break
+        king = king_square.piece
+        return not self.in_check(king, Move(king_square, None))
+
+    def stale_mate(self, color):
+        # Iterate through all pieces of the given color
+        for row in self.squares:
+            for square in row:
+                piece = square.piece
+                if piece is not None and piece.color == color:
+                    # Calculate legal moves for each piece
+                    self.calc_moves(piece, square.row, square.col)
+                    # If any piece has legal moves, it's not a stalemate
+                    if piece.moves:
+                        return False
+        
+        # If no pieces have legal moves and the king of the given color is not in check, it's a stalemate
+        king_square = None
+        for row in self.squares:
+            for square in row:
+                piece = square.piece
+                if isinstance(piece, King) and piece.color == color:
+                    king_square = square
+                    break
+            if king_square:
+                break
+
+        king = king_square.piece
+        return not self.in_check(king, Move(king_square, None))
+    
 
     def calc_moves(self, piece, row, col, bool=True):
         '''

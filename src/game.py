@@ -122,11 +122,13 @@ class Game:
 
     def reset(self):
         self.__init__()
+    
 
-
-    def ai_move(self):
+    def make_ai_move(self):
         ai = AI(self.board, self.next_player)
         move = ai.get_best_move()
-        self.board.make_move(move)
-        self.next_turn()
-        self.play_sound()
+        if move:
+            self.board.make_move(move)
+            self.next_turn()
+            self.play_sound()
+    

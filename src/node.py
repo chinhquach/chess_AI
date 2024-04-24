@@ -1,36 +1,30 @@
-import random
-
 class Node:
-    def __init__(self, weight, value, prob, position, move):
-        self.weight = weight
-        self.value = value
-        self.prob = prob
-        self.position = position
-        self.move = move
-        self.children = []
+    def __init__(self):
+        self.root = self._create()
+
+    def _create(self):
+        # Create a decision tree to store data and strategies
+        root = Node(weight=0, value=0, prob=1)
+        return root
+
+    def next_move(self, board, ai):
+        # Use AI instance to get the next move based on the current state of the board
+        next_move = ai.get_best_move(board)
+        return next_move
+
+    def learn(self, game_history):
+        # This function will be called after each game to learn from the game history
+        # For example: update the decision tree based on the good and bad moves made in the game
+        for move in game_history:
+            # Perform decision tree update based on the move in the game history
+            self.update_decision_tree(move)
     
-    def add_child(self, child):
-        self.children.append(child)
+    def update_decision_tree(self, move):
+        # Update the decision tree based on the move
+        # For example: increase the weight of the node corresponding to the move made
+        node = self.find_node(move)
+        node.weight += 1
     
-    def add_children(self, children):
-        self.children.extend(children)
-    
-    def calc_prob(self):
-        # Calculate probability based on chess position evaluation
-        # You can use a chess engine or evaluation function here
-        return self.prob
-    
-    def get_child(self, index):
-        return self.children[index]
-    
-    def choose_child(self) -> 'Node':
-        # Select child node based on a chess-specific strategy
-        # You can use a minimax algorithm or MCTS algorithm here
-        total_prob = sum(child.prob for child in self.children)
-        rand_val = random.random() * total_prob
-        prob_sum = 0
-        for child in self.children:
-            prob_sum += child.prob
-            if prob_sum >= rand_val:
-                return child
-        return None  # Handle no child chosen case (optional)
+    def find_node(self, move):
+        # This function should find and return the node corresponding to the given move
+        pass

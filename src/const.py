@@ -6,3 +6,4 @@ HEIGHT = 800
 ROWS = 8
 COLS = 8
 SQSIZE = WIDTH // COLS
+AI_COLOR = 'black'

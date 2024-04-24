@@ -6,7 +6,8 @@ from game import Game
 from square import Square
 from move import Move
 from ai import AI
-
+from const import AI_COLOR
+import random
 class Main:
 
     def __init__(self):
@@ -14,6 +15,9 @@ class Main:
         self.screen = pygame.display.set_mode( (WIDTH, HEIGHT) )
         pygame.display.set_caption('Chess')
         self.game = Game()
+
+    def choose_white_ai(self):
+        self.game.next_player = AI_COLOR
 
     def mainloop(self):
         
@@ -105,18 +109,19 @@ class Main:
                             game.next_turn()
 
                             # AI moves
-                            if game.next_player == 'black':
-                                ai = AI('black', 3, 'stockfish')
-                                ai_move = ai.ai_move(board)
-                                if ai_move:
-                                    board.move(ai_move[0], ai_move[1])
-                                    game.play_sound(ai_move[2])
+                            if game.next_player == AI_COLOR:
+                                ai = AI(game)
+                                best_move = ai.get_best_move()
+                                if best_move is not None:
+                                    board.move(best_move.piece, best_move)
+                                    board.set_true_en_passant(best_move.piece)
+                                    captured = board.squares[best_move.final.row][best_move.final.col].has_piece()
+                                    game.play_sound(captured)
                                     game.show_bg(screen)
                                     game.show_last_move(screen)
                                     game.show_pieces(screen)
                                     game.next_turn()
-                    
-                    dragger.undrag_piece()
+                                    game.show_bg(screen)    
                 
                 # key press
                 elif event.type == pygame.KEYDOWN:
